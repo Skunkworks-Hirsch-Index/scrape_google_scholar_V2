@@ -1,17 +1,7 @@
 from google_scholar_py import CustomGoogleScholarProfiles, CustomGoogleScholarOrganic, CustomGoogleScholarAuthor
 from google_scholar_py.serpapi_backend.author_results import SerpApiGoogleScholarAuthor
-
-import json
-
-# def scrape_profiles():
-#     parser = CustomGoogleScholarProfiles()
-#     data = parser.scrape_google_scholar_profiles(
-#         query='University of Wisconsin',
-#         pagination=False,
-#         save_to_csv=False,
-#         save_to_json=False
-#     )
-#     print(json.dumps(data, indent=2))
+from google_scholar_py.custom_backend.author_info_all_articles import h_index_without_coauthor,h_index_without_time_period
+import json 
 
 def scrape_publications():
     parser = CustomGoogleScholarOrganic()
@@ -40,7 +30,6 @@ def scrape_article(link, name, citations_count):
         citations_count=citations_count
     )
     return data
-
 def scrape_author_articles(user_id):
     data = {
         'info': {},
@@ -62,30 +51,15 @@ def scrape_author_articles(user_id):
             data['articles'].append(article_data)
     return data
 
-
-
-# def serp_scrape_author():
-
-#     parser = SerpApiGoogleScholarAuthor()
-#     data = parser.scrape_google_scholar_author_results(
-#         author_id='Q6m4TzIAAAAJ',
-#         api_key='2b0f2e80c02509a0028e51b98f584f280236e564a61888acb21e8068df98129f',
-#         parse_articles=False,
-#         article_pagination=False,
-#     )
-    
-#     #print(data.keys()) # show available keys
-#     with open("data/SerpMaciejPolak.json", "w") as f:
-#         json.dump(data, f, indent=2)
-
 if __name__ == '__main__':
-    #serp_scrape_author()
-    #data = scrape_article('https://scholar.google.com/citations?view_op=view_citation&hl=en&user=DYmXzOYAAAAJ&citation_for_view=DYmXzOYAAAAJ:d1gkVwhDpl0C')
-    #print(data)
+    parser = CustomGoogleScholarAuthor()
+    # data = parser.scrape_google_scholar_author_data(user_id='Q6m4TzIAAAAJ', parse_articles=True, article_pagination=True)
     data = scrape_author_articles('Q6m4TzIAAAAJ')
+    # Using the helper functions
+    co_author_name = "Robert Kudrawiec"
+    start_year, end_year = 2010, 2020
+    print(f"H-Index without {co_author_name}: {h_index_without_coauthor(data['articles'], co_author_name)}")
+    print(f"H-Index without papers from {start_year} to {end_year}: {h_index_without_time_period(data['articles'], start_year, end_year)}")
+
     with open("data/MaciejPolakArticles.json", "w") as f:
         json.dump(data, f, indent=2)
-
-    # data = scrape_author_articles('DYmXzOYAAAAJ')
-    # with open("data/McCartyArticles.json", "w") as f:
-    #     json.dump(data, f, indent=2)

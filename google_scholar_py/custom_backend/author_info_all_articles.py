@@ -5,6 +5,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selectolax.lexbor import LexborHTMLParser
 from typing import List, Union, Dict
 from pathlib import Path
+from typing import List, Dict
 
 
 class CustomGoogleScholarAuthor:
@@ -401,3 +402,22 @@ class CustomGoogleScholarAuthor:
             profile_info.pop('articles')
         '''
         return article_info
+
+def compute_h_index(citations: List[int]) -> int:
+    sorted_citations = sorted([c for c in citations if c is not None], reverse=True)
+    h_index = 0
+    for i, c in enumerate(sorted_citations):
+        if c >= i + 1:
+            h_index = i + 1
+    return h_index
+
+def h_index_without_coauthor(articles: List[Dict], co_author_name: str) -> int:
+    filtered_articles = [article for article in articles if article.get('authors') and co_author_name not in article['Authors']]
+    citations = [article.get('cited_by_count', 0) for article in filtered_articles]
+    return compute_h_index(citations)
+
+def h_index_without_time_period(articles: List[Dict], start_year: int, end_year: int) -> int:
+    filtered_articles = [article for article in articles if article.get('publication_year') and not (start_year <= article.get('publication_year') <= end_year)]
+    citations = [article.get('cited_by_count', 0) for article in filtered_articles]
+    return compute_h_index(citations)
+
